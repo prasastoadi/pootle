@@ -124,9 +124,26 @@ excluded_filters = ['hassuggestion', 'spellcheck', 'isfuzzy',
 
 # pre-compile all regexps
 
-fmt = u"\{\d+(?:,(?:number|date|time|choice))\}"
-fmt_esc = u"\\\{\d+\\\}"
-java_format_regex = re.compile(u"(%s|%s)" % (fmt, fmt_esc))
+fmt = u"""  \{              # curly bracket
+            \d              # any digit
+            +             # one or more greedy quantifier
+            (?:          # non-capturing group
+                ,           # comma
+                (?:      # non-capturing group
+                    number  # characters "number"
+                    |date   # or characters "date"
+                    |time   # or characters "time"
+                    |choice # or characters "choice"
+                )
+            )
+            \}              # curly bracket"""
+fmt_esc = u"""  \\              # backslash
+                \{              # curly bracket
+                \d
+                +               # one or more greedy quantifier
+                \\              # backslash
+                \}              # curly bracket"""
+java_format_regex = re.compile(u"\(%s|%s\)" % (fmt, fmt_esc), re.X)
 
 fmt = u"\$\{[a-zA-Z_\d\.\:]+\}"
 template_format_regex = re.compile(u"(%s)" % fmt, re.U)
