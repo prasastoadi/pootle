@@ -124,15 +124,45 @@ excluded_filters = ['hassuggestion', 'spellcheck', 'isfuzzy',
 
 # pre-compile all regexps
 
-fmt = u"\{\d+(?:,(?:number|date|time|choice))\}"
-fmt_esc = u"\\\{\d+\\\}"
-java_format_regex = re.compile(u"(%s|%s)" % (fmt, fmt_esc))
+fmt = u"""  \{              # curly bracket
+            \d+             # one or more of any digit
+            (?:             # non-capturing group
+                ,           # comma
+                (?:         # non-capturing group
+                    number  # characters "number"
+                    |date   # or characters "date"
+                    |time   # or characters "time"
+                    |choice # or characters "choice"
+                )
+            )
+            \}              # curly bracket"""
+fmt_esc = u"""  \\              # backslash
+                \{              # curly bracket
+                \d+             # one or more of any digit
+                \\              # backslash
+                \}              # curly bracket"""
+java_format_regex = re.compile(u"\(%s|%s\)" % (fmt, fmt_esc), re.X)
 
-fmt = u"\$\{[a-zA-Z_\d\.\:]+\}"
-template_format_regex = re.compile(u"(%s)" % fmt, re.U)
+fmt = u"""  \$          # dollar sign
+            \{          # curly bracket
+            [           # match a single character below
+                a-z     # any alphabet in the range between a-z
+                A-Z     # any alphabet in the range between A-Z
+                _       # underscore
+                \d      # any digit
+                \.      # period
+                \:      # colon
+            ]+          # one or more
+            \}          # curly bracket"""
+template_format_regex = re.compile(u"\(%s\)" % fmt, re.U | re.X)
 
-fmt = u"%\d+\$[a-z]+"
-android_format_regex = re.compile(u"(%s)" % fmt, re.U)
+fmt = u"""  %           # percent sign
+            \d+         # one or more of any digit
+            \$          # dollar sign
+            [           # match a single character below
+                a-z     # any alphabet in the range between a-z
+            ]+          # one or more"""
+android_format_regex = re.compile(u"\(%s\)" % fmt, re.U | re.X)
 
 fmt = u"%@|%\d+\$@"
 objective_c_format_regex = re.compile(u"(%s)" % fmt, re.U)
